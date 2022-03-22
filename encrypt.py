@@ -3,10 +3,40 @@ import tkinter as tk
 HEIGHT = 700
 WIDTH = 500
 
+alphabet = "abcdefghijklmnopqrstuvwxyz "
+letterIndex = dict(zip(alphabet, range(len(alphabet))))
+indexLetter = dict(zip(range(len(alphabet)), alphabet))
+#Cipher status allows the user to decide which cipher they want to use
+cipherStatus = 0
+encryptStatus = True
 #Toggle button for the cesar cipher
 vigenereStatus = True
 cesarStatus = True
 playfairStatus = True
+
+def decryptStaging():
+    global encryptStatus
+    encryptStatus = False
+    finalMessage()
+
+def cesarEncrypt(plaintext, shift=3):
+    cipher = ''
+
+    for letter in plaintext:
+        index = ((letterIndex[letter] + shift) % len(alphabet))
+        cipherLetter = indexLetter[index]
+        cipher += cipherLetter  
+    result['text'] = cipher     
+ 
+def cesarDecrypt(ciphertext, shift=-3):
+    global encryptStatus
+    encryptStatus = 3
+    uncipher = ''
+    for letter in ciphertext:
+        index = ((letterIndex[letter] + shift) % len(alphabet))
+        cipherLetter = indexLetter[index]
+        uncipher += cipherLetter  
+    result['text'] = uncipher     
 
 def vigenere():
     global vigenereStatus
@@ -14,7 +44,10 @@ def vigenere():
         vigenereStatus = False
         vigenereButton.config(image = vOn)
         print("vigenere is  online")
+        global cipherStatus
+        cipherStatus = 1
     else:
+        cipherStatus = 0
         vigenereStatus = True
         vigenereButton.config(image = vOff)
         print("vigenere is offline")
@@ -22,10 +55,13 @@ def vigenere():
 def playfair():
     global playfairStatus
     if playfairStatus:
+        global cipherStatus
+        cipherStatus = 2
         playfairStatus = False
         playfairButton.config(image = pOn)
         print("playfair is  online")
     else:
+        cipherStatus = 0
         playfairStatus = True
         playfairButton.config(image = pOff)
         print("playfair is offline")
@@ -33,21 +69,34 @@ def playfair():
 def cesars():
     global cesarStatus
     if cesarStatus:
+        global cipherStatus
+        cipherStatus = 3
         cesarStatus = False
         cesarButton.config(image = cOn)
-        print("I am online")
     else:
+        cipherStatus = 0
         cesarStatus = True
         cesarButton.config(image = cOff)
-        print("I am offline")
 
+def finalMessage():
+    if(cipherStatus == 1) and (encryptStatus == False):
+        result['text'] = "i am inside vigenere"
+    elif (cipherStatus == 2) and (encryptStatus == False):
+        result['text'] = "i am inside playfair"
+    elif (cipherStatus == 3) and (encryptStatus == False):
+        cesarDecrypt(entry.get())
+    elif (cipherStatus == 1)and (encryptStatus):
+        print(cipherStatus)
+    elif (cipherStatus == 2) and (encryptStatus):
+        print(cipherStatus)
+    elif (cipherStatus == 3) and (encryptStatus):
+        cesarEncrypt(entry.get())
 
 #Front-end GUI
 root =tk.Tk()
 
 canvas = tk.Canvas(root, height=HEIGHT, width = WIDTH)
 canvas.pack()
-
 
 frame = tk.Frame(root, bg="#8ae6c1")
 frame.place(relwidth=1, relheight=1)
@@ -62,10 +111,10 @@ playfairButton.place(relx= 0.37, rely = 0.05, relwidth = 0.25, relheight=0.05)
 vigenereButton = tk.Button(frame, text = "Vigenère Cipher",bg='#8ac4e6', font=15, command=lambda: vigenere())
 vigenereButton.place(relx= 0.65, rely = 0.05, relwidth = 0.25, relheight=0.05)
 #Encrypt button
-encrypt = tk.Button(frame, text="Encrypt", bg='#8ac4e6', font=15, command=lambda: cesars(entry.get()))
+encrypt = tk.Button(frame, text="Encrypt", bg='#8ac4e6', font=15, command=lambda: finalMessage())
 encrypt.place(relx=0.67, rely=0.15, relwidth=0.15, relheight=0.08)
 #Decrypt button
-decrypt = tk.Button(frame, text="Decrypt", bg='#8ac4e6', font=15, command=lambda: cesars(entry.get()))
+decrypt = tk.Button(frame, text="Decrypt", bg='#8ac4e6', font=15, command= lambda: decryptStaging())
 decrypt.place(relx=0.82, rely=0.15, relwidth=0.15, relheight=0.08)
 #Key entry
 key = tk.Entry(frame, bg="#8ac4e6")
