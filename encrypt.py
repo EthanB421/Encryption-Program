@@ -4,11 +4,16 @@ HEIGHT = 700
 WIDTH = 500
 
 alphabet = "abcdefghijklmnopqrstuvwxyz "
-letterIndex = dict(zip(alphabet, range(len(alphabet))))
-indexLetter = dict(zip(range(len(alphabet)), alphabet))
+alphabetRange =  range(len(alphabet))
+
+#Maps each letter in the alphabet to anumber
+letterIndex = dict(zip(alphabet, alphabetRange))
+indexLetter = dict(zip(alphabetRange, alphabet))
+
 #Cipher status allows the user to decide which cipher they want to use
 cipherStatus = 0
 encryptStatus = True
+
 #Toggle button for the cesar cipher
 vigenereStatus = True
 cesarStatus = True
@@ -19,6 +24,41 @@ def decryptStaging():
     encryptStatus = False
     finalMessage()
 
+#Vigenere cipher code
+def vigenereEncrypt(plaintext, key):
+    vCipher = ''
+    #Splits the plaintext into the size of the key
+    split_message = [plaintext[i:i + len(key)] for i in range(0, len(plaintext), len(key))]
+
+    for split in split_message:
+        index = 0
+        for message in split:
+            number = (letterIndex[message] + letterIndex[key[index]]) % len(alphabet)
+            vCipher += indexLetter[number]
+            index+=1
+
+    result['text'] = vCipher
+
+def vigenereDecrypt(plaintext, key):
+    vUncipher = ''
+    global encryptStatus
+    encryptStatus = 1
+
+        #Splits the plaintext into the size of the key
+    split_message = [plaintext[i:i + len(key)] for i in range(0, len(plaintext), len(key))]
+
+    for split in split_message:
+        index = 0
+        for message in split:
+            number = (letterIndex[message] - letterIndex[key[index]]) % len(alphabet)
+            vUncipher += indexLetter[number]
+            index+=1
+    
+    result['text'] = vUncipher
+
+
+
+#Caesar cipher code 
 def cesarEncrypt(plaintext, shift=3):
     cipher = ''
 
@@ -38,6 +78,7 @@ def cesarDecrypt(ciphertext, shift=-3):
         uncipher += cipherLetter  
     result['text'] = uncipher     
 
+#Toggle buttons
 def vigenere():
     global vigenereStatus
     if vigenereStatus:
@@ -79,17 +120,17 @@ def cesars():
         cesarButton.config(image = cOff)
 
 def finalMessage():
-    if(cipherStatus == 1) and (encryptStatus == False):
-        result['text'] = "i am inside vigenere"
-    elif (cipherStatus == 2) and (encryptStatus == False):
+    if(cipherStatus == 1) and (encryptStatus == False): #Conditional for the vigenere decrypting cipher
+        vigenereDecrypt(entry.get(), key.get())
+    elif (cipherStatus == 2) and (encryptStatus == False): #Conditional for  the playfair decrypting cipher
         result['text'] = "i am inside playfair"
-    elif (cipherStatus == 3) and (encryptStatus == False):
+    elif (cipherStatus == 3) and (encryptStatus == False): #Conditional for the caesar decrypting cipher
         cesarDecrypt(entry.get())
-    elif (cipherStatus == 1)and (encryptStatus):
+    elif (cipherStatus == 1)and (encryptStatus): #Conditional for the vigenere encrypting cipher
+        vigenereEncrypt(entry.get(), key.get()) 
+    elif (cipherStatus == 2) and (encryptStatus): #Conditional for  the playfair encrypting cipher
         print(cipherStatus)
-    elif (cipherStatus == 2) and (encryptStatus):
-        print(cipherStatus)
-    elif (cipherStatus == 3) and (encryptStatus):
+    elif (cipherStatus == 3) and (encryptStatus): #Conditional for the caesar encrypting cipher
         cesarEncrypt(entry.get())
 
 #Front-end GUI
